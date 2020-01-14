@@ -1,15 +1,107 @@
+---
+excluded:
+- Pods
+- quant-ios-sdk-swift-4.2-0.2.13
+- Aumo/Resources/R.generated.swift
 
-disabled_rules:
-  - identifier_name
-  - trailing_whitespace
-  - line_length
-  - type_body_length
-  - file_length
+opt_in_rules: #取り入れるルール
+- closing_brace
+- colon
+- comma
+- custom_rules
+- empty_count
+- force_cast
+- force_unwrapping
+- for_where
+- leading_whitespace
+- line_length
+- operator_whitespace
+- overridden_super_call
+- statement_position
+- trailing_newline
+- trailing_semicolon
+- trailing_whitespace
+- unused_enumerated
+- vertical_whitespace
+- return_arrow_whitespace
+- opening_brace
+- switch_case_alignment
+
+disabled_rules: #除外するルール
+#↓後で追加
+- function_body_length
+#↑後で追加
+
+- cyclomatic_complexity
+- todo
+- mark
+- class_delegate_protocol
+- switch_case_on_newline
+- let_var_whitespace
+- array_init
+- block_based_kvo
+- trailing_closure
+- multiple_closures_with_trailing_closure
+- contains_over_first_not_nil
+- discouraged_direct_init
+- explicit_enum_raw_value
+- fallthrough
+- force_try
+- is_disjoint
+- joined_default_parameter
+- literal_expression_end_indentation
+- multiline_parameters
+- no_grouping_extension
+- pattern_matching_keywords
+- private_over_fileprivate
+- quick_discouraged_call
+- single_test_class
+- strict_fileprivate
+- superfluous_disable_command
+- unneeded_break_in_switch
+- unneeded_parentheses_in_closure_argument
+- xctfail_message
+- empty_enum_arguments
+- notification_center_detachment
+- unused_optional_binding
+- operator_usage_whitespace
+- closure_parameter_position
+- closure_end_indentation
+- unused_closure_parameter
+- file_length
+- control_statement
+- closure_spacing
+- conditional_returns_on_newline
+- explicit_init
+- function_parameter_count
+- nesting
+- legacy_cggeometry_functions
+- legacy_constant
+- legacy_constructor
+- legacy_nsgeometry_functions
+- private_outlet
+- private_unit_test
+- type_name
+- identifier_name
+- valid_ibinspectable
+- type_body_length
+- syntactic_sugar
+- large_tuple
+force_cast: warning
+control_statement: error
+cyclomatic_complexity:
+- 65
+- 70
+file_length: 2000
+function_body_length: 600
+line_length: 300
 custom_rules:
-  override_func: # rule identifier
-    name: "override in func" # rule name. optional.
-    regex: "override (open|public|private|internal|fileprivate)" # matching pattern
-    message: "Use like open override or public override instead" # violation message. optional.
-    severity: warning # violation severity. optional.
-included:
-  - Sources
+  comment_rules:
+    included: ".*\\.swift"
+    name: "Comment_rules"
+    regex: "//+(\\w)"
+    match_kinds:
+            - Comment
+    message: "Comment must have blank."
+    severity: warning
+included: 

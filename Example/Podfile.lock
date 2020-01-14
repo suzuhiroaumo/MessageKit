@@ -1,14 +1,21 @@
 PODS:
   - InputBarAccessoryView (4.2.2)
-  - MessageKit (3.0.0-beta-swift4-2):
-    - InputBarAccessoryView
+  - MessageKit (3.0.0):
+    - InputBarAccessoryView (~> 4.2.2)
+  - SwiftFormat/CLI (0.43.1)
+  - SwiftLint (0.38.0)
 
 DEPENDENCIES:
   - MessageKit (from `../`)
+  - SwiftFormat/CLI
+  - SwiftLint
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - InputBarAccessoryView
+  trunk:
+    - SwiftFormat
+    - SwiftLint
 
 EXTERNAL SOURCES:
   MessageKit:
@@ -16,8 +23,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   InputBarAccessoryView: 2b937602598e2fab3149f37f51dd7ad795653812
-  MessageKit: feb3ca4fa02a14f3391781323ced1da84a0aa73c
+  MessageKit: 727f80d121b859855ad9fba3d032d23705147c78
+  SwiftFormat: e73bae96d000ae07ffb9e3636929ca5e9d5c1efd
+  SwiftLint: 4105f061f9812b214568b736dab580ab2c73a582
 
-PODFILE CHECKSUM: cecdb7bc8129cf99f66de9f68eea3256fec30c3d
+PODFILE CHECKSUM: fd5288bfe903e3cb15545b0dd977ba0eeb1207d9
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.8.1

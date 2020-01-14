@@ -21,17 +21,16 @@ import XCTest
 
 final class ChatExampleTests: XCTestCase {
 
-    override func setUp() {
-        super.setUp()
-    }
+  override func setUp() {
+    super.setUp()
+  }
 
-    override func tearDown() {
-        super.tearDown()
-    }
+  override func tearDown() {
+    super.tearDown()
+  }
 
-    func testExample() {
+  func testExample() {
         // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+  }
 }

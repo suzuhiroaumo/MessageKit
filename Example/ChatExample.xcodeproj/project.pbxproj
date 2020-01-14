@@ -190,11 +190,11 @@
 		385C2949211FF3930010B4BA /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				385C293F211FF38F0010B4BA /* LaunchViewController.swift */,
+				385C2940211FF38F0010B4BA /* BasicExampleViewController.swift */,
 				385C293B211FF38E0010B4BA /* AdvancedExampleViewController.swift */,
 				38CCCC582258419300DD5482 /* AutocompleteExampleViewController.swift */,
-				385C2940211FF38F0010B4BA /* BasicExampleViewController.swift */,
 				385C2941211FF38F0010B4BA /* ChatViewController.swift */,
-				385C293F211FF38F0010B4BA /* LaunchViewController.swift */,
 				385C293D211FF38F0010B4BA /* MessageContainerController.swift */,
 				385C293E211FF38F0010B4BA /* NavigationController.swift */,
 				385C293C211FF38E0010B4BA /* SettingsViewController.swift */,
@@ -310,12 +310,13 @@
 			buildConfigurationList = 882B5E5D1CF7D4B900B6E160 /* Build configuration list for PBXNativeTarget "ChatExample" */;
 			buildPhases = (
 				011D1D45151418DF94DA1AD7 /* [CP] Check Pods Manifest.lock */,
+				A55979DA23CD8D99005C4746 /* swiftformat */,
+				7E0AFF9D207BB460004DFD4C /* swiftlint */,
 				882B5E2F1CF7D4B900B6E160 /* Sources */,
 				882B5E301CF7D4B900B6E160 /* Frameworks */,
 				882B5E311CF7D4B900B6E160 /* Resources */,
 				882B5EA41CF7D8D100B6E160 /* Embed Frameworks */,
 				3C8DFCD3063DA0DF099EC7B6 /* [CP] Embed Pods Frameworks */,
-				7E0AFF9D207BB460004DFD4C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -350,6 +351,8 @@
 			buildConfigurationList = 882B5E631CF7D4B900B6E160 /* Build configuration list for PBXNativeTarget "ChatExampleUITests" */;
 			buildPhases = (
 				1CC06D6D4B06C7DEBF56FCA1 /* [CP] Check Pods Manifest.lock */,
+				A55979D923CD8D2E005C4746 /* swiftformat */,
+				A55979D823CD8D29005C4746 /* swiftlint */,
 				882B5E501CF7D4B900B6E160 /* Sources */,
 				882B5E511CF7D4B900B6E160 /* Frameworks */,
 				882B5E521CF7D4B900B6E160 /* Resources */,
@@ -376,15 +379,18 @@
 				TargetAttributes = {
 					882B5E321CF7D4B900B6E160 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 9JMCJCA8J2;
 						LastSwiftMigration = 0800;
 					};
 					882B5E481CF7D4B900B6E160 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 9JMCJCA8J2;
 						LastSwiftMigration = 0800;
 						TestTargetID = 882B5E321CF7D4B900B6E160;
 					};
 					882B5E531CF7D4B900B6E160 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 9JMCJCA8J2;
 						TestTargetID = 882B5E321CF7D4B900B6E160;
 					};
 				};
@@ -394,6 +400,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -512,18 +519,75 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7E0AFF9D207BB460004DFD4C /* ShellScript */ = {
+		7E0AFF9D207BB460004DFD4C /* swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = swiftlint;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+			shellScript = "if [ -z ${CI+x} ];then # CIツールでビルドがエラーにならないための分岐\nif which \"${PODS_ROOT}/SwiftLint/swiftlint\" >/dev/null; then\n${PODS_ROOT}/SwiftLint/swiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\nfi;\n";
+		};
+		A55979D823CD8D29005C4746 /* swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -z ${CI+x} ];then # CIツールでビルドがエラーにならないための分岐\nif which \"${PODS_ROOT}/SwiftLint/swiftlint\" >/dev/null; then\n${PODS_ROOT}/SwiftLint/swiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\nfi;\n";
+		};
+		A55979D923CD8D2E005C4746 /* swiftformat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.swiftformat",
+			);
+			name = swiftformat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . \n";
+		};
+		A55979DA23CD8D99005C4746 /* swiftformat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.swiftformat",
+			);
+			name = swiftformat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -712,7 +776,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.messagekit.ChatExample;
@@ -727,7 +791,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.messagekit.ChatExample;
@@ -742,6 +806,7 @@
 			baseConfigurationReference = 0364943D08CDBE656E6F6DF8 /* Pods-ChatExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hexedbits.ChatExampleTests;
@@ -756,6 +821,7 @@
 			baseConfigurationReference = BFE5859D088A740A7D43E1B1 /* Pods-ChatExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hexedbits.ChatExampleTests;
@@ -770,6 +836,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B0DD3C951C9D064B5E6D6644 /* Pods-ChatExampleUITests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = UITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hexedbits.ChatExampleUITests;
@@ -783,6 +850,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B2F1C412A96DE613A0AC31F8 /* Pods-ChatExampleUITests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 9JMCJCA8J2;
 				INFOPLIST_FILE = UITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hexedbits.ChatExampleUITests;
