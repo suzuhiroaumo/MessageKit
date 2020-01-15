@@ -26,10 +26,13 @@ import UIKit
 import MapKit
 import MessageKit
 import InputBarAccessoryView
+import Nantes
 
 final class AdvancedExampleViewController: ChatViewController {
 
   let outgoingAvatarOverlap: CGFloat = 17.5
+
+  var currentDate: Date = Date()
 
   override func viewDidLoad() {
     messagesCollectionView = MessagesCollectionView(frame: .zero, collectionViewLayout: CustomMessagesFlowLayout())
@@ -92,20 +95,23 @@ final class AdvancedExampleViewController: ChatViewController {
 
     // Hide the outgoing avatar and adjust the label alignment to line up with the messages
     layout.setMessageOutgoingAvatarSize(.zero)
+
     layout.setMessageOutgoingMessageTopLabelAlignment(LabelAlignment(textAlignment: .right, textInsets: .zero))
-    layout.setMessageOutgoingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 16))
-    layout.setMessageOutgoingMessageBottomLabelAlignment(LabelAlignment(textAlignment: .right, textInsets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 16)))
+    layout.setMessageOutgoingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 16, right: 16))
 
     // Set outgoing avatar to overlap with the message bubble
+    layout.setMessageIncomingAvatarPosition(.init(vertical: .messageBottom))
     layout.setMessageIncomingMessageTopLabelAlignment(LabelAlignment(textAlignment: .left, textInsets: UIEdgeInsets(top: 0, left: 18, bottom: outgoingAvatarOverlap, right: 0)))
     layout.setMessageIncomingAvatarSize(CGSize(width: 30, height: 30))
-    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: -outgoingAvatarOverlap, left: 12, bottom: 0, right: 18))
+    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 16, right: 18))
 
-    layout.setMessageIncomingAccessoryViewSize(CGSize(width: 30, height: 30))
+    layout.setMessageIncomingAccessoryViewSize(CGSize(width: 36, height: 10))
     layout.setMessageIncomingAccessoryViewPadding(HorizontalEdgeInsets(left: 8, right: 0))
     layout.setMessageIncomingAccessoryViewPosition(.messageBottom)
-    layout.setMessageOutgoingAccessoryViewSize(CGSize(width: 30, height: 30))
+
+    layout.setMessageOutgoingAccessoryViewSize(CGSize(width: 36, height: 10))
     layout.setMessageOutgoingAccessoryViewPadding(HorizontalEdgeInsets(left: 0, right: 8))
+    layout.setMessageOutgoingAccessoryViewPosition(.messageBottom)
 
     messagesCollectionView.messagesLayoutDelegate = self
     messagesCollectionView.messagesDisplayDelegate = self
@@ -157,18 +163,8 @@ final class AdvancedExampleViewController: ChatViewController {
 
   // MARK: - Helpers
 
-  func isTimeLabelVisible(at indexPath: IndexPath) -> Bool {
-    return indexPath.section % 3 == 0 && !isPreviousMessageSameSender(at: indexPath)
-  }
-
-  func isPreviousMessageSameSender(at indexPath: IndexPath) -> Bool {
-    guard indexPath.section - 1 >= 0 else { return false }
-    return messageList[indexPath.section].user == messageList[indexPath.section - 1].user
-  }
-
-  func isNextMessageSameSender(at indexPath: IndexPath) -> Bool {
-    guard indexPath.section + 1 < messageList.count else { return false }
-    return messageList[indexPath.section].user == messageList[indexPath.section + 1].user
+  private func isTimeLabelVisible(at indexPath: IndexPath) -> Bool {
+    return true
   }
 
   /// 入力中のステータス
@@ -176,7 +172,7 @@ final class AdvancedExampleViewController: ChatViewController {
   /// - Parameters:
   ///   - isHidden: 入力中を有効にするかどうか
   ///   - updates: 更新が完了したか
-  func setTypingIndicatorViewHidden(_ isHidden: Bool, performUpdates updates: (() -> Void)? = nil) {
+  private func setTypingIndicatorViewHidden(_ isHidden: Bool, performUpdates updates: (() -> Void)? = nil) {
     updateTitleView(title: "MessageKit", subtitle: isHidden ? "2 Online" : "Typing...")
     setTypingIndicatorViewHidden(isHidden, animated: true, whilePerforming: updates) { [weak self] success in
       guard let self = self else {
@@ -227,12 +223,23 @@ final class AdvancedExampleViewController: ChatViewController {
     }
 
     let message = messagesDataSource.messageForItem(at: indexPath, in: messagesCollectionView)
+    print("\n",
+          "message",
+          "\n",
+          message
+    )
     if case .custom = message.kind {
       let cell = messagesCollectionView.dequeueReusableCell(CustomCell.self, for: indexPath)
       cell.configure(with: message, at: indexPath, and: messagesCollectionView)
       return cell
+    } else {
+      print("\n",
+            "message.kind",
+            "\n",
+            message.kind
+      )
+      return super.collectionView(collectionView, cellForItemAt: indexPath)
     }
-    return super.collectionView(collectionView, cellForItemAt: indexPath)
   }
 
   // MARK: - MessagesDataSource
@@ -246,20 +253,13 @@ final class AdvancedExampleViewController: ChatViewController {
       return nil
     }
     return NSAttributedString(string: MessageKitDateFormatter.shared.string(from: message.sentDate),
-                              attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 10), NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+                              attributes: [NSAttributedString.Key.font: UIFont.hiraKakuW6(size: 10),
+                                           NSAttributedString.Key.foregroundColor: UIColor.darkGray])
   }
 
-  /// 送信者名のラベル
-  /// - Parameters:
-  ///   - message: message
-  ///   - indexPath: パス
   override func messageTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-    guard !isPreviousMessageSameSender(at: indexPath) else {
-      return nil
-    }
     return nil
   }
-
 
   override func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
     return nil
@@ -356,6 +356,7 @@ extension AdvancedExampleViewController: MessagesDisplayDelegate {
     }
   }
 
+
   // アイコンの表示
   func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
     let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
@@ -363,54 +364,28 @@ extension AdvancedExampleViewController: MessagesDisplayDelegate {
   }
 
   func configureAccessoryView(_ accessoryView: UIView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-    // Cells are reused, so only add a button here once. For real use you would need to
-    // ensure any subviews are removed if not needed
-    accessoryView.subviews.forEach { $0.removeFromSuperview() }
-    accessoryView.backgroundColor = .clear
-
-    let shouldShow = Int.random(in: 0...10) == 0
-    guard shouldShow else { return }
-
-    let button = UIButton(type: .infoLight)
-    button.tintColor = .primaryColor
-    accessoryView.addSubview(button)
-    button.frame = accessoryView.bounds
-    button.isUserInteractionEnabled = false // respond to accessoryView tap through `MessageCellDelegate`
-    accessoryView.layer.cornerRadius = accessoryView.frame.height / 2
-    accessoryView.backgroundColor = UIColor.primaryColor.withAlphaComponent(0.3)
-  }
-
-  // MARK: - Location Messages
-
-  func annotationViewForLocation(message: MessageType, at indexPath: IndexPath, in messageCollectionView: MessagesCollectionView) -> MKAnnotationView? {
-    let annotationView = MKAnnotationView(annotation: nil, reuseIdentifier: nil)
-    let pinImage = #imageLiteral(resourceName: "ic_map_marker")
-    annotationView.image = pinImage
-    annotationView.centerOffset = CGPoint(x: 0, y: -pinImage.size.height / 2)
-    return annotationView
-  }
-
-  func animationBlockForLocation(message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> ((UIImageView) -> Void)? {
-    return { view in
-      view.layer.transform = CATransform3DMakeScale(2, 2, 2)
-      UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [], animations: {
-        view.layer.transform = CATransform3DIdentity
-      }, completion: nil)
+    let subViews = accessoryView.subviews
+    for subView in subViews {
+      subView.removeFromSuperview()
     }
-  }
 
-  func snapshotOptionsForLocation(message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> LocationMessageSnapshotOptions {
-    return LocationMessageSnapshotOptions(showsBuildings: true, showsPointsOfInterest: true, span: MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10))
-  }
+    let f = DateFormatter()
+    f.timeStyle = .short
+    f.dateStyle = .none
 
-  // MARK: - Audio Messages
+    let dateLabel = UILabel()
+    dateLabel.font = UIFont.hiraKakuW3(size: 10)
+    if isFromCurrentSender(message: message) {
+      dateLabel.textAlignment = .right
+    } else {
+      dateLabel.textAlignment = .left
+    }
 
-  func audioTintColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
-    return self.isFromCurrentSender(message: message) ? .white : .primaryColor
-  }
-
-  func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
-    audioController.configureAudioCell(cell, message: message) // this is needed especily when the cell is reconfigure while is playing sound
+    dateLabel.frame = CGRect(x: 0, y: 0, width: 36, height: 10)
+    let dateString = f.string(from: message.sentDate)
+    dateLabel.text = dateString
+    dateLabel.textColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
+    accessoryView.addSubview(dateLabel)
   }
 }
 
@@ -426,14 +401,10 @@ extension AdvancedExampleViewController: MessagesLayoutDelegate {
   }
 
   func messageTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    if isFromCurrentSender(message: message) {
-      return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
-    } else {
-      return !isPreviousMessageSameSender(at: indexPath) ? (20 + outgoingAvatarOverlap) : 0
-    }
+    return 0
   }
 
   func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    return (!isNextMessageSameSender(at: indexPath) && isFromCurrentSender(message: message)) ? 16 : 0
+    return 0
   }
 }

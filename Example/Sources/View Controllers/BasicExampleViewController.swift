@@ -46,7 +46,7 @@ final class BasicExampleViewController: ChatViewController {
     // Set outgoing avatar to overlap with the message bubble
     // layout.setMessageIncomingMessageTopLabelAlignment(LabelAlignment(textAlignment: .left, textInsets: UIEdgeInsets(top: 0, left: 18, bottom: outgoingAvatarOverlap, right: 0)))
     layout.setMessageIncomingAvatarSize(CGSize(width: 30, height: 30))
-    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: -30, right: 18))
+    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 18))
 
     layout.setMessageIncomingAccessoryViewSize(CGSize(width: 30, height: 30))
     layout.setMessageIncomingAccessoryViewPadding(HorizontalEdgeInsets(left: 8, right: 0))
