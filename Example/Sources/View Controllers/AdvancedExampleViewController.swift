@@ -26,7 +26,6 @@ import UIKit
 import MapKit
 import MessageKit
 import InputBarAccessoryView
-import Nantes
 
 final class AdvancedExampleViewController: ChatViewController {
 
@@ -37,6 +36,7 @@ final class AdvancedExampleViewController: ChatViewController {
   override func viewDidLoad() {
     messagesCollectionView = MessagesCollectionView(frame: .zero, collectionViewLayout: CustomMessagesFlowLayout())
     messagesCollectionView.register(CustomCell.self)
+    messagesCollectionView.register(DateHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader)
     super.viewDidLoad()
 
     updateTitleView(title: "MessageKit", subtitle: "2 Online")
@@ -249,12 +249,7 @@ final class AdvancedExampleViewController: ChatViewController {
   ///   - message: message
   ///   - indexPath: パス
   override func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-    guard isTimeLabelVisible(at: indexPath) else {
-      return nil
-    }
-    return NSAttributedString(string: MessageKitDateFormatter.shared.string(from: message.sentDate),
-                              attributes: [NSAttributedString.Key.font: UIFont.hiraKakuW6(size: 10),
-                                           NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+    return nil
   }
 
   override func messageTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
@@ -269,6 +264,23 @@ final class AdvancedExampleViewController: ChatViewController {
 // MARK: - MessagesDisplayDelegate
 
 extension AdvancedExampleViewController: MessagesDisplayDelegate {
+
+  func messageHeaderView(for indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageReusableView {
+    let header = messagesCollectionView.dequeueReusableHeaderView(DateHeaderView.self, for: indexPath)
+    guard indexPath.row == 0 else {
+      return header
+    }
+    let message = messageForItem(at: indexPath, in: messagesCollectionView)
+
+    let f = DateFormatter()
+    f.dateFormat =  "yyyy/MM/dd(EEE)"
+    f.locale = Locale(identifier: "ja_JP")
+
+    let dateString = f.string(from: message.sentDate)
+
+    header.setup(with: dateString)
+    return header
+  }
 
   // MARK: - Text Messages
 
@@ -356,7 +368,6 @@ extension AdvancedExampleViewController: MessagesDisplayDelegate {
     }
   }
 
-
   // アイコンの表示
   func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
     let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
@@ -393,10 +404,11 @@ extension AdvancedExampleViewController: MessagesDisplayDelegate {
 
 extension AdvancedExampleViewController: MessagesLayoutDelegate {
 
+  func headerViewSize(for section: Int, in messagesCollectionView: MessagesCollectionView) -> CGSize {
+    return CGSize(width: messagesCollectionView.bounds.width, height: DateHeaderView.height)
+  }
+
   func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    if isTimeLabelVisible(at: indexPath) {
-      return 18
-    }
     return 0
   }
 
