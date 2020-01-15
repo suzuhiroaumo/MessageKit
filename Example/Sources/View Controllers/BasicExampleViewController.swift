@@ -29,6 +29,13 @@ import MessageKit
 final class BasicExampleViewController: ChatViewController {
   let outgoingAvatarOverlap: CGFloat = 17.5
 
+  override func viewDidLoad() {
+    messagesCollectionView = MessagesCollectionView(frame: .zero, collectionViewLayout: CustomMessagesFlowLayout())
+    messagesCollectionView.register(CustomCell.self)
+    messagesCollectionView.register(DateHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader)
+    super.viewDidLoad()
+  }
+
   override func configureMessageCollectionView() {
     super.configureMessageCollectionView()
 
@@ -39,23 +46,70 @@ final class BasicExampleViewController: ChatViewController {
 
     // Hide the outgoing avatar and adjust the label alignment to line up with the messages
     layout.setMessageOutgoingAvatarSize(.zero)
+
     layout.setMessageOutgoingMessageTopLabelAlignment(LabelAlignment(textAlignment: .right, textInsets: .zero))
-    layout.setMessageOutgoingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 16))
-    layout.setMessageOutgoingMessageBottomLabelAlignment(LabelAlignment(textAlignment: .right, textInsets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 16)))
+    layout.setMessageOutgoingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 16, right: 16))
 
     // Set outgoing avatar to overlap with the message bubble
-    // layout.setMessageIncomingMessageTopLabelAlignment(LabelAlignment(textAlignment: .left, textInsets: UIEdgeInsets(top: 0, left: 18, bottom: outgoingAvatarOverlap, right: 0)))
+    layout.setMessageIncomingAvatarPosition(.init(vertical: .messageBottom))
+    layout.setMessageIncomingMessageTopLabelAlignment(LabelAlignment(textAlignment: .left, textInsets: UIEdgeInsets(top: 0, left: 18, bottom: outgoingAvatarOverlap, right: 0)))
     layout.setMessageIncomingAvatarSize(CGSize(width: 30, height: 30))
-    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 18))
+    layout.setMessageIncomingMessagePadding(UIEdgeInsets(top: 0, left: 12, bottom: 16, right: 18))
 
-    layout.setMessageIncomingAccessoryViewSize(CGSize(width: 30, height: 30))
+    layout.setMessageIncomingAccessoryViewSize(CGSize(width: 36, height: 10))
     layout.setMessageIncomingAccessoryViewPadding(HorizontalEdgeInsets(left: 8, right: 0))
     layout.setMessageIncomingAccessoryViewPosition(.messageBottom)
-    layout.setMessageOutgoingAccessoryViewSize(CGSize(width: 30, height: 30))
+
+    layout.setMessageOutgoingAccessoryViewSize(CGSize(width: 36, height: 10))
     layout.setMessageOutgoingAccessoryViewPadding(HorizontalEdgeInsets(left: 0, right: 8))
+    layout.setMessageOutgoingAccessoryViewPosition(.messageBottom)
 
     messagesCollectionView.messagesLayoutDelegate = self
     messagesCollectionView.messagesDisplayDelegate = self
+  }
+
+  // テキスト入力
+  override func configureMessageInputBar() {
+    super.configureMessageInputBar()
+
+    messageInputBar.isTranslucent = true
+    messageInputBar.separatorLine.isHidden = true
+    messageInputBar.inputTextView.tintColor = UIColor.yellow
+    messageInputBar.inputTextView.placeholder = ""
+    messageInputBar.inputTextView.placeholderTextColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1)
+    messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 36)
+    messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 8, left: 20, bottom: 8, right: 36)
+    messageInputBar.inputTextView.layer.borderColor = UIColor(red: 204/255, green: 204/255, blue: 204/255, alpha: 1).cgColor
+    messageInputBar.inputTextView.layer.borderWidth = 1.0
+    messageInputBar.inputTextView.layer.cornerRadius = 16.0
+    messageInputBar.inputTextView.layer.masksToBounds = true
+    messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+    configureInputBarItems()
+  }
+
+  // テキスト入力周りのアイテム(主に送信するボタン)
+  private func configureInputBarItems() {
+    messageInputBar.setRightStackViewWidthConstant(to: 64, animated: false)
+    messageInputBar.sendButton.imageView?.backgroundColor = UIColor(white: 0.85, alpha: 1)
+    messageInputBar.sendButton.contentEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+    messageInputBar.sendButton.setSize(CGSize(width: 64, height: 36), animated: false)
+    messageInputBar.sendButton.title = "送信する"
+    messageInputBar.sendButton.setTitleColor(UIColor.yellow, for: .normal)
+    messageInputBar.sendButton.setTitleColor(UIColor.yellow, for: .disabled)
+    messageInputBar.middleContentViewPadding.right = -68
+    messageInputBar.middleContentViewPadding.bottom = 8
+
+    // This just adds some more flare
+    messageInputBar.sendButton
+      .onEnabled { item in
+        UIView.animate(withDuration: 0.3, animations: {
+          item.imageView?.backgroundColor = .primaryColor
+        })
+      }.onDisabled { item in
+        UIView.animate(withDuration: 0.3, animations: {
+          item.imageView?.backgroundColor = UIColor(white: 0.85, alpha: 1)
+        })
+      }
   }
 
   /// 送信者名のラベル
@@ -75,10 +129,27 @@ final class BasicExampleViewController: ChatViewController {
 
 extension BasicExampleViewController: MessagesDisplayDelegate {
 
+  func messageHeaderView(for indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageReusableView {
+    let header = messagesCollectionView.dequeueReusableHeaderView(DateHeaderView.self, for: indexPath)
+    guard indexPath.row == 0 else {
+      return header
+    }
+    let message = messageForItem(at: indexPath, in: messagesCollectionView)
+
+    let f = DateFormatter()
+    f.dateFormat =  "yyyy/MM/dd(EEE)"
+    f.locale = Locale(identifier: "ja_JP")
+
+    let dateString = f.string(from: message.sentDate)
+
+    header.setup(with: dateString)
+    return header
+  }
+
   // MARK: - Text Messages
 
   func textColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
-    return isFromCurrentSender(message: message) ? .white : .darkText
+    return isFromCurrentSender(message: message) ? .darkText : .darkText
   }
 
   func detectorAttributes(for detector: DetectorType, and message: MessageType, at indexPath: IndexPath) -> [NSAttributedString.Key: Any] {
@@ -95,18 +166,80 @@ extension BasicExampleViewController: MessagesDisplayDelegate {
   // MARK: - All Messages
 
   func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
-    return isFromCurrentSender(message: message) ? .primaryColor : UIColor(red: 230/255, green: 230/255, blue: 230/255, alpha: 1)
+    return isFromCurrentSender(message: message) ? UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1) : UIColor(red: 221/255, green: 221/255, blue: 221/255, alpha: 1)
   }
 
   func messageStyle(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageStyle {
 
-    let tail: MessageStyle.TailCorner = isFromCurrentSender(message: message) ? .bottomRight : .bottomLeft
-    return .bubbleTail(tail, .curved)
+    // 角丸にするcorner
+    var corners: UIRectCorner = []
+
+    var isFromSelfSender = false
+
+    if isFromCurrentSender(message: message) {
+      corners.formUnion(.topLeft)
+      corners.formUnion(.bottomLeft)
+      corners.formUnion(.topRight)
+      isFromSelfSender = true
+    } else {
+      corners.formUnion(.topRight)
+      corners.formUnion(.bottomRight)
+      corners.formUnion(.topLeft)
+      isFromSelfSender = false
+    }
+
+    return .custom { view in
+      /*
+       if isFromSelfSender {
+         view.layer.borderWidth = 0
+         view.layer.masksToBounds = false
+         view.layer.borderColor = UIColor.gray.cgColor
+       } else {
+         view.layer.borderWidth = 1
+         view.layer.masksToBounds = false
+         view.layer.borderColor = UIColor.gray.cgColor
+       }
+       */
+
+      let radius: CGFloat = 16
+      let path = UIBezierPath(roundedRect: view.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+      let mask = CAShapeLayer()
+      path.addLine(to: CGPoint(x: 0.0, y: 100))
+      UIColor.red.setFill()
+      path.close()
+      mask.path = path.cgPath
+      view.layer.mask = mask
+    }
   }
 
   func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
     let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
     avatarView.set(avatar: avatar)
+  }
+
+  func configureAccessoryView(_ accessoryView: UIView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+    let subViews = accessoryView.subviews
+    for subView in subViews {
+      subView.removeFromSuperview()
+    }
+
+    let f = DateFormatter()
+    f.timeStyle = .short
+    f.dateStyle = .none
+
+    let dateLabel = UILabel()
+    dateLabel.font = UIFont.hiraKakuW3(size: 10)
+    if isFromCurrentSender(message: message) {
+      dateLabel.textAlignment = .right
+    } else {
+      dateLabel.textAlignment = .left
+    }
+
+    dateLabel.frame = CGRect(x: 0, y: 0, width: 36, height: 10)
+    let dateString = f.string(from: message.sentDate)
+    dateLabel.text = dateString
+    dateLabel.textColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
+    accessoryView.addSubview(dateLabel)
   }
 
   // MARK: - Location Messages
@@ -148,19 +281,24 @@ extension BasicExampleViewController: MessagesDisplayDelegate {
 
 extension BasicExampleViewController: MessagesLayoutDelegate {
 
+  func headerViewSize(for section: Int, in messagesCollectionView: MessagesCollectionView) -> CGSize {
+    return CGSize(width: messagesCollectionView.bounds.width, height: DateHeaderView.height)
+  }
+
   func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    return 18
+    return 0
   }
 
-  func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    return 17
-  }
-
+  /*
+   func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+     return 0
+   }
+   */
   func messageTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    return 20
+    return 0
   }
 
   func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-    return 16
+    return 0
   }
 }

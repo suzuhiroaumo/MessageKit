@@ -10,7 +10,7 @@ import UIKit
 import MessageKit
 
 class DateHeaderView: MessageReusableView {
-  
+
   // MARK: - Private Properties
   private static let attributes: [NSAttributedString.Key: Any] = [
     .font: UIFont.hiraKakuW6(size: 10),

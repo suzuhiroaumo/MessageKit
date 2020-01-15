@@ -31,8 +31,6 @@ final class AdvancedExampleViewController: ChatViewController {
 
   let outgoingAvatarOverlap: CGFloat = 17.5
 
-  var currentDate: Date = Date()
-
   override func viewDidLoad() {
     messagesCollectionView = MessagesCollectionView(frame: .zero, collectionViewLayout: CustomMessagesFlowLayout())
     messagesCollectionView.register(CustomCell.self)
